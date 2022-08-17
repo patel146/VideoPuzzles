@@ -1,0 +1,90 @@
+function PuzzleVideo() {
+  
+  var videoID = 'Q6ppNN517v8'; //https://youtu.be/Q6ppNN517v8
+  var part = 'snippet,statistics';
+  var params = {'id': videoID};
+  var channelID = 'UCdg7s8CIiO_w1DbmcjQcx5Q' //https://www.youtube.com/channel/UCdg7s8CIiO_w1DbmcjQcx5Q
+  var channel_params = {'id': channelID}; 
+  
+  var response = YouTube.Videos.list(part, params);
+  var channel_response = YouTube.Channels.list(part, channel_params);
+  var video = response.items[0];
+  var my_channel = channel_response.items[0];
+
+  console.log(my_channel)
+  var my_sub_count = my_channel.statistics.subscriberCount;
+  var videoViewsCount = video.statistics.viewCount;
+  var videoLikeCount = video.statistics.likeCount;
+  var videoCommentCount = video.statistics.commentCount;
+
+  function isSolved(num1, num2, num3, num4){
+    full = num1 + num2 + num3 + num4
+
+    digits_sum = 0
+
+    for (let i = 0; i< full.length; i++){
+        digits_sum += parseInt(full[i])
+    }
+
+    if (digits_sum % 2 === 0){
+        console.log('is even therefore, puzzle is solved')
+        return true
+    }
+    else{
+        console.log('is odd therefore, puzzle is unsolved')
+        return false
+    }
+  }
+  isSolved = isSolved(videoViewsCount, videoLikeCount, videoCommentCount, my_sub_count)
+  console.log(isSolved)
+
+  if (isSolved){
+    var videoTitle = 'This Video Says Yes';
+  }else{
+    var videoTitle = 'This Video Says No';
+  }
+  
+  the_sacred_numbers = videoViewsCount + ',' + videoLikeCount + ',' + videoCommentCount + ',' + my_sub_count
+
+  video.snippet.title = videoTitle;
+  video.snippet.description = 'The sacred numbers: \n' + the_sacred_numbers + '\n\n' + `
+Check out the subreddit to post your thoughts and suggestions! 
+https://www.reddit.com/r/AllTheDevNoobs/ 
+
+⚒️ What I used
+
+Code editor: PyCharm Community Edition
+https://www.jetbrains.com/pycharm/download/#section=windows
+
+and VSCode
+
+Video Editing: DaVinci Resolve 
+https://www.blackmagicdesign.com/ca/products/davinciresolve
+
+Audio Editing: Audacity
+https://www.audacityteam.org/download/
+
+Sound and Music Design: FL Studio
+https://www.image-line.com/fl-studio-download/
+
+Graphics: Inkscape
+https://inkscape.org/release/inkscape-1.2/
+
+Screen Recording: OBS 
+https://obsproject.com/
+
+Check out my other playlists!
+Music for Coding:
+https://youtube.com/playlist?list=PLzG3Zp-hwr3o45_ex8Bz1MoASNu9xpuvB 
+
+Code that Inspires Me:
+https://youtube.com/playlist?list=PLzG3Zp-hwr3qp8myUaZ4h3szS3n9ewSH3`
+
+  try{
+    YouTube.Videos.update(video, part);
+    
+  }catch(e){
+    console.log(e)
+  }
+  
+}
