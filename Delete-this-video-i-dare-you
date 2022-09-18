@@ -1,0 +1,83 @@
+function RedvsBlue() {
+  
+  var videoID = 'Pxy3ZZHa4z0'; //https://youtu.be/Pxy3ZZHa4z0
+  var part = 'snippet,statistics,status';
+  var comments_part = 'snippet,replies'
+  var commenter_part = 'id,snippet'
+  var params = {'id': videoID};
+  var comment_params = {'videoId': videoID};
+  var channelID = 'UCdg7s8CIiO_w1DbmcjQcx5Q' //https://www.youtube.com/channel/UCdg7s8CIiO_w1DbmcjQcx5Q
+  var channel_params = {'id': channelID}; 
+  
+  var response = YouTube.Videos.list(part, params);
+  var channel_response = YouTube.Channels.list(part, channel_params);
+  var video = response.items[0];
+  var my_channel = channel_response.items[0];
+
+  var viewCount = video.statistics.viewCount;
+  var like_count = video.statistics.likeCount;
+
+  var comments_content = YouTube.CommentThreads.list(comments_part,comment_params)
+  var comments = comments_content.items
+  var num_of_comments = comments_content.items.length
+
+
+
+  // hashes password using SHA256
+  function Hash(password){
+    var hash_password = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, password, Utilities.Charset.US_ASCII)
+    var hash_password = hash_password
+      .map(function(byte) {
+          // Convert from 2's compliment
+          var v = (byte < 0) ? 256 + byte : byte;
+
+          // Convert byte to hexadecimal
+          return ("0" + v.toString(16)).slice(-2);
+      })
+      .join("");
+    return hash_password
+  }
+
+  function tripleHash(password, salt){
+    let h = Hash(password+salt)
+    h = Hash(h+salt)
+    h = Hash(h + salt)
+    return h
+  }
+
+  var password = 'NH4F.MGCO3.NACL.'
+  var salt = like_count.toString()
+  var hashed = tripleHash(password,salt)
+  console.log("Destruct Code: "+hashed)
+
+  var passwordFound = false
+
+  for (let i=0; i<num_of_comments; i++){
+    let comment = comments[i].snippet.topLevelComment.snippet.textDisplay
+    let comment_id = comments[i].id
+    console.log(comment)
+
+    if (comment==hashed){
+      let commenter = YouTube.Comments.list(commenter_part,{'id': comment_id}).items[0].snippet.authorDisplayName
+      console.log(commenter + ' found the password in the comment: \n ' + comment)
+      passwordFound = true
+    }
+  }
+
+  console.log('Password Found: '+ passwordFound)
+
+
+  if (passwordFound && parseInt(viewCount)<1000000){
+    video.status.privacyStatus = 'unlisted'
+    console.log('video changed to unlisted')
+  }
+  
+  
+  try{
+    YouTube.Videos.update(video, part);
+    
+  }catch(e){
+    console.log(e)
+  }
+  
+}
